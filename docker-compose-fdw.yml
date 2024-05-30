@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  telegraf:
+    container_name: telegraf
+    image: telegraf:1.29
+    volumes:
+      - ./telegraf/etc/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - influxdb
+    ports:
+      - '127.0.0.1:8125:8125/udp'
+    networks:
+      - tig_network
+
+  influxdb:
+    image: influxdb:1.8
+    env_file: configuration.env
+    ports:
+      - '127.0.0.1:8086:8086'
+    volumes:
+      - ./influxdb/init:/docker-entrypoint-initdb.d  # Assuming initialization scripts if needed
+      - influxdb_data:/var/lib/influxdb
+    networks:
+      - tig_network
+
+  grafana:
+    image: grafana/grafana:8.0.2
+    env_file: configuration.env
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+    networks:
+      - tig_network
+
+  postgresql-b:
+    image: postgres:13
+    container_name: postgresql-b
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db
+    ports:
+      - "5432:5432"
+    networks:
+      - tig_network
+
+  postgresql-b1:
+    image: postgres:13
+    container_name: postgresql-b1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db
+    ports:
+      - "5433:5432"
+    networks:
+      - tig_network
+
+  postgresql-b2:
+    image: postgres:13
+    container_name: postgresql-b2
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db
+    ports:
+      - "5434:5432"
+    networks:
+      - tig_network
+
+volumes:
+  grafana_data:
+  influxdb_data:
+
+networks:
+  tig_network:

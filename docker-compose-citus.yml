@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  citus-coordinator:
+    image: citusdata/citus
+    container_name: citus-coordinator
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: books_db
+    ports:
+      - "5435:5432"
+    networks:
+      - citus_network
+
+  citus-worker1:
+    image: citusdata/citus
+    container_name: citus-worker1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - citus_network
+
+  citus-worker2:
+    image: citusdata/citus
+    container_name: citus-worker2
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - citus_network
+
+networks:
+  citus_network:
+    driver: bridge
